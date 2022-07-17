@@ -29,12 +29,12 @@ while (<$brite_json>) {
 	if (m/\A\t{5}"name":"(.+)"/) {
 		$names[3] = $1;
 		$names[3] =~ m/\A(.+)  |\A(.+); /;
-		my $ko_id = $1;
-		$ko_id =~ s/ *//;
-		while ($names[3] =~ m/$ko_id/) {
+		my $id = $1;
+		$id =~ s/ *//;
+		while ($names[3] =~ m/$id/) {
 			$names[3] =~ s/\A$ko_id[ ;]*//;
 		};
-		print $brite_tsv join "\t", @names, $ko_id, "\n";
+		print $brite_tsv join "\t", @names, $id, "\n";
 	};
 	last if eof $brite_json;
 };

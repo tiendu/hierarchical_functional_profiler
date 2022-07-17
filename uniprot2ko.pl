@@ -62,6 +62,7 @@ for my $key (sort keys %hierarchies_id_hash) {
     elsif (@{$hierarchies_id_hash{$key}} == 1) {
         for (@{$hierarchies_id_hash{$key}}) {
             print $brite_tsv_nr join "\t", $_, $key, "\n" if (grep /Brite Hierarchies/, $_);
+	    print $brite_tsv_nr join "\t", $_, $key, "\n" unless (grep /Brite Hierarchies/, $_);
         };
     };
 };

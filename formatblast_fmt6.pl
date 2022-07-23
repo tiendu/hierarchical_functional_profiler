@@ -1,9 +1,10 @@
 use strict;
+use feature 'say';
 
-my $result_path = shift @ARGV;
+my $resultPath = shift @ARGV;
 
-open my $result, "<:utf8", $result_path or die qq{Can't open $result_path: $!\n};
-my %infos_hash;
+open my $result, "<:utf8", $resultPath or die qq{Can't open $resultPath: $!\n};
+my %infosHash;
 while (<$result>) {
     chomp;
     my @fields = split "\t";
@@ -31,57 +32,93 @@ while (<$result>) {
     my @info = ([$uniprot_id, $sense, $len, $ident, $evalue, $bit, $qstart, $qend, $tstart, $tend]);
 #     filtering follows this guide: 10.1002/0471250953.bi0301s42
     if ($ident > 20 && $evalue < 1.0e-3 && $bit > 50) {
-        $infos_hash{$id} = [] unless exists $infos_hash{$id};
-        push @{$infos_hash{$id}}, @info;
+        $infosHash{$id} = [] unless exists $infosHash{$id};
+        push @{$infosHash{$id}}, @info;
     };
 };
 close $result;
 
-open my $result_nr, ">:utf8", "temp4";
-my %id_pos_hash;
-for my $id (sort keys %infos_hash) {
-    my @array = @{$infos_hash{$id}};
-    my @pos;
-    foreach (@array) {push @pos, [@$_[-4], @$_[-3]];};
-    my @removal;
-    for my $item1 (@pos) {
-        for my $item2 (@pos) {
+open my $resultnr, ">:utf8", "filtered_result.tsv";
+print $resultnr "Sequence_ID\tUniProt_ID\tLen\tIdent\tEvalue\tBit\tQStart\tQEnd\tTStart\tTEnd\n";
+my %idposHash;
+for my $id (sort keys %infosHash) {
+    my @array = @{$infosHash{$id}};
+    my @pos_p;
+    my @pos_n;
+    for my $item (@array) {
+        if (@$item[1] eq "+") {
+            push @pos_p, [@$item[-4], @$item[-3]];
+        } elsif (@$item[1] eq "-") {
+            push @pos_n, [@$item[-4], @$item[-3]];
+        };
+    };
+    my @pos_p_u = uniq(@pos_p);
+    my @removal_p;    
+    for my $item1 (@pos_p_u) {
+        for my $item2 (@pos_p_u) {
             unless ($item1 == $item2) {
                 my ($s1, $e1) = @$item1;
                 my ($s2, $e2) = @$item2;
                 if ($s1 >= $s2 && $e1 <= $e2) {
-                    push @removal, $item1;
+                    push @removal_p, $item1;
                 };
             };
         };
     };
-    my @unique = do {my %seen; grep {!$seen{$_}++} @removal};
-    foreach (@unique) {my $index = 0; $index++ until $pos[$index] == $_; splice(@pos, $index, 1);};
-    foreach (@pos) {
-        $id_pos_hash{$id} = [] unless exists $id_pos_hash{$id};
-        push @{$id_pos_hash{$id}}, @pos;
+    my @removal_p_u = uniq(@removal_p);
+    for (@removal_p_u) {
+        my $index = 0;
+        $index++ until $pos_p_u[$index] == $_;
+        splice(@pos_p_u, $index, 1);
     };
-};
-print $result_nr "Sequence_ID\tUniProt_ID\tLen\tIdent\tEvalue\tBit\tQStart\tQEnd\tTStart\tTEnd\n";
-my @records;
-for my $id (sort keys %id_pos_hash) { 
-    my @array = @{$id_pos_hash{$id}};
-    for my $item1 (@array) {
-        my ($s1, $e1) = @$item1;
-        for my $item2 (@{$infos_hash{$id}}) {
+    
+    my @pos_n_u = uniq(@pos_n);
+    my @removal_n;
+    for my $item1 (@pos_n_u) {
+        for my $item2 (@pos_n_u) {
+            unless ($item1 == $item2) {
+                my ($s1, $e1) = @$item1;
+                my ($s2, $e2) = @$item2;
+                if ($s1 >= $s2 && $e1 <= $e2) {
+                    push @removal_n, $item1;
+                };
+            };
+        };
+    };
+    my @removal_n_u = uniq(@removal_n);
+    for (@removal_n_u) {
+        my $index = 0;
+        $index++ until $pos_n_u[$index] == $_;
+        splice(@pos_n_u, $index, 1);
+    };
+    for my $item1 (@pos_p_u) {
+        for my $item2 (@array) {
+            my ($s1, $e1) = @$item1;
             my ($s2, $e2) = (@$item2[-4], @$item2[-3]);
-            if ($s1 == $s2 && $e1 == $e2) {
-                if (@$item2[1] eq "+") {
-                    push @records, join("\t", $id, @$item2[0], @$item2[2 .. 9], "\n");
-                } elsif (@$item2[1] eq "-") {
-                    push @records, join("\t", $id, @$item2[0], @$item2[2 .. 5], @$item2[7], @$item2[6], @$item2[8], @$item2[9], "\n");
+            if  (@$item2[1] eq "+") {
+                if ($s1 == $s2 && $e1 == $e2) {
+                    print $resultnr join "\t", $id, @$item2[0], @$item2[2..9], "\n";
+                    last;
                 };
             };
         };
     };
+    for my $item1 (@pos_n_u) {
+        for my $item2 (@array) {
+            my ($s1, $e1) = @$item1;
+            my ($s2, $e2) = (@$item2[-4], @$item2[-3]);
+            if  (@$item2[1] eq "-") {
+                if ($s1 == $s2 && $e1 == $e2) {
+                    print $resultnr join "\t", $id, @$item2[0], @$item2[2..5], @$item2[7], @$item2[6], @$item2[8..9], "\n";
+                    last;
+                };
+            };
+        };
+    }; 
 };
-my @uniq_records = do {my %seen; grep {!$seen{$_}++} @records};
-foreach (@uniq_records) {
-    print $result_nr $_;
-};
-close $result_nr;
+close $resultnr;
+
+sub uniq {
+    my %seen;
+    grep !$seen{$_->[0]}{$_->[1]}++, @_;
+}

@@ -59,7 +59,7 @@ for my $id (sort keys %infosHash) {
             unless ($item1 == $item2) {
                 my ($s1, $e1) = @$item1;
                 my ($s2, $e2) = @$item2;
-                if ($s1 >= $s2 && $e1 <= $e2) {
+                if ($s1 == $s2 && $e1 < $e2) { # remove only genes with the same starting position and have less length
                     push @removal_p, $item1;
                 };
             };

@@ -20,4 +20,6 @@ for line in $(cat uniprot_id.txt); do curl -L https://rest.kegg.jp/conv/genes/${
 for line in $(awk -v FS="\t" '{print $2}'); do curl -L https://rest.kegg.jp/link/ko/${line} >> genes_ko.tsv; done
 ```
 
-This will give us three files for the funcprofiler.pl
+4) Then we get the Brite hierarchy from https://rest.kegg.jp/get/br:ko00001/json
+
+This will give us three files for the uniprot2ko.pl

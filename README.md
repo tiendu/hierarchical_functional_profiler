@@ -22,4 +22,7 @@ for line in $(awk -v FS="\t" '{print $2}'); do curl -L https://rest.kegg.jp/link
 
 4) Then we get the Brite hierarchy from https://rest.kegg.jp/get/br:ko00001/json
 
-This will give us three files for the uniprot2ko.pl
+This will give us three files for the uniprot2ko.pl. Run the uniprot2ko.pl with this command:
+```
+perl uniprot2ko.pl json uniprot_genes.tsv genes_ko.tsv
+```

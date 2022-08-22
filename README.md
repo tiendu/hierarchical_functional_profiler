@@ -3,4 +3,5 @@ This tool will take in the output from DIAMOND blastx and search for the hierarc
 
 ## How to use
 
-First, run the uniprot2ko.pl with the downloaded 
+First, get the Brite hierarchy using KEGG API from https://rest.kegg.jp/get/br:ko00001/json
+ 

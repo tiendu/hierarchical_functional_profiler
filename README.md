@@ -26,3 +26,5 @@ This will give us three files for the uniprot2ko.pl. Run the uniprot2ko.pl with 
 ```
 perl uniprot2ko.pl json uniprot_genes.tsv genes_ko.tsv
 ```
+
+==> This will generate a file with UniProt ID and the corresponding Brite hierarchy.

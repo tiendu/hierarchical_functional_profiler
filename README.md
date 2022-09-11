@@ -1,4 +1,4 @@
-# funcprofiler
+# functional profiler using KEGG hierarchies
 This tool will take in the output from DIAMOND blastx and search for the hierarchical classification of functions from KEGG.
 
 ## How to use

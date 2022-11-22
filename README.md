@@ -29,9 +29,9 @@ perl uniprot2ko.pl json uniprot_genes.tsv genes_ko.tsv
 
 ==> This will generate a file with UniProt ID and the corresponding Brite hierarchy.
 
-We also need to filter the result from DIAMOND blastx. Redundant results e.g., short ORFs, are expected from DIAMOND blastx. Use the formatblast.pl to do it.
+We also need to filter the result from DIAMOND blastx. Redundant results e.g., short ORFs, are expected from DIAMOND blastx. Use the filterblast.pl to do it.
 ```
-perl formatblast.pl result_from_DIAMOND_blastx
+perl filterblast.pl result_from_DIAMOND_blastx
 ```
 
 Finally, use the findfunction.pl to look for the Brite hierarchy.

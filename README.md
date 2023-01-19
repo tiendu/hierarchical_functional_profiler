@@ -12,7 +12,7 @@ awk '/>/ {match($0, /\|(.+)\|/, a); print a[1]}' uniprot_sprot.fasta >> uniprot_
 
 2) With the UniProt ID in hands, now we can convert it to KEGG Genes
 ```
-for line in $(cat uniprot_id.txt); do curl -L https://rest.kegg.jp/conv/genes/${line} >> uniprot_genes.tsv; done
+for line in $(cat uniprot_id.txt); do curl -L https://rest.kegg.jp/conv/genes/uniprot:${line} >> uniprot_genes.tsv; done
 ```
 
 3) And get the KO ID from KEGG Genes.
